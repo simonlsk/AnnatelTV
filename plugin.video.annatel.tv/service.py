@@ -15,6 +15,7 @@ __WaitInterval__	= 5			# 5 seconds
 sys.path.insert(0, __ResourcesPath__)
 import common, annatel, myIPTVSimple
 
+monit = xbmc.Monitor()
 tvThread  = None
 epgThread = None
 tvCounter  = 0
@@ -48,7 +49,7 @@ def OnExit():
 		epgThread = None
 
 def SleepFor(time_period): #seconds
-    while((not xbmc.abortRequested) and (time_period > 0)):
+    while((not monit.abortRequested) and (time_period > 0)):
         xbmc.sleep(1000)
         time_period -= 1
 		
@@ -57,7 +58,7 @@ def CheckUpdates():
 	global tvThread
 	global epgCounter
 	global epgThread
-	while ((not xbmc.abortRequested) and (annatel.IsLoggedIn()) and (myIPTVSimple.GetIptvAddon() is not None)):
+	while ((not monit.abortRequested) and (annatel.IsLoggedIn()) and (myIPTVSimple.GetIptvAddon() is not None)):
 		tvCounter  -= __WaitInterval__
 		epgCounter -= __WaitInterval__
 		
@@ -111,7 +112,7 @@ def UpdateEPG():
 
 
 OnLoad()
-while (not xbmc.abortRequested):
+while (not monit.abortRequested):
 	if ((annatel.IsLoggedIn()) and (myIPTVSimple.GetIptvAddon() is not None)):
 		CheckUpdates()
 	else:

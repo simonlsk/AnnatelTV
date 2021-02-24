@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import urllib2, sys, re, xbmc, xbmcgui, xbmcaddon, os, json, common
+import urllib, sys, re, xbmc, xbmcgui, xbmcaddon, os, json, common,xbmcvfs
 import xml.etree.ElementTree as ET
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(__AddonID__)
-__IPTVSimple__AddonDataPath____ = os.path.join(xbmc.translatePath("special://userdata/addon_data").decode("utf-8"), "pvr.iptvsimple")
-__AddonDataPath__ = os.path.join(xbmc.translatePath("special://userdata/addon_data").decode("utf-8"), __AddonID__)
+__IPTVSimple__AddonDataPath____ = os.path.join(xbmcvfs.translatePath("special://userdata/addon_data").encode().decode("utf-8"), "pvr.iptvsimple")
+__AddonDataPath__ = os.path.join(xbmcvfs.translatePath("special://userdata/addon_data").encode().decode("utf-8"), __AddonID__)
 
 
 if (not os.path.exists(__AddonDataPath__)):
@@ -15,11 +15,11 @@ if (not os.path.exists(__AddonDataPath__)):
 def GetIptvAddon(show_message=False):
 	iptvAddon = None
 	
-	if os.path.exists(xbmc.translatePath("special://home/addons/").decode("utf-8") + 'pvr.iptvsimple') or os.path.exists(xbmc.translatePath("special://xbmc/addons/").decode("utf-8") + 'pvr.iptvsimple'):
+	if os.path.exists(xbmcvfs.translatePath("special://home/addons/").encode().decode("utf-8") + 'pvr.iptvsimple') or os.path.exists(xbmcvfs.translatePath("special://xbmc/addons/").encode().decode("utf-8") + 'pvr.iptvsimple'):
 		try:
 			iptvAddon = xbmcaddon.Addon("pvr.iptvsimple")
 		except:
-			print "---- Annatel ----\nIPTVSimple addon is disable."
+			print ("---- Annatel ----\nIPTVSimple addon is disable.")
 			msg1 = "PVR IPTVSimple is Disable."
 			msg2 = "Please enable IPTVSimple addon."
 	else:	

@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import sys, urllib, os, xbmc, xbmcaddon, xbmcgui, json, codecs, zipfile, random, contextlib, threading, re, urllib.request
+import sys, urllib, os, xbmc, xbmcaddon, xbmcgui, json, codecs, zipfile, random, contextlib, threading, re, urllib.request,xbmcvfs
 from datetime import datetime, timedelta
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(id=__AddonID__)
-__AddonPath__ = xbmc.translatePath(__Addon__.getAddonInfo('path'))
-__AddonDataPath__ = os.path.join(xbmc.translatePath( "special://userdata/addon_data").encode().decode("utf-8"), __AddonID__)
+__AddonPath__ = xbmcvfs.translatePath(__Addon__.getAddonInfo('path'))
+__AddonDataPath__ = os.path.join(xbmcvfs.translatePath( "special://userdata/addon_data").encode().decode("utf-8"), __AddonID__)
 __DefaultTitle__ = __Addon__.getAddonInfo('name')
 __TempPath__ = os.path.join(__AddonDataPath__, "temp")
 
 sys.path.insert(0, os.path.join(__AddonPath__, "resources", "lib", "urllib3-1.11"))
-sys.path.insert(0, os.path.join(__AddonPath__, "resources", "lib", "dropbox-python-sdk-2.2.0"))
-import dropbox
+
+
 
 random.seed()
 
@@ -183,60 +183,7 @@ def DownloadFile(link, file_path):
 		pass
 	return response
 
-def GetDropBoxConnection():
-	return dropbox.client.DropboxClient("cr_1HVbxjpoAAAAAAAALdk896j1aIxxxq26cP-_gJPI_o77xbE_qrXrDD3fzdXbG")
 
-def UploadDropBoxFile(local_file, remote_path, remote_filename):
-	dbcon = GetDropBoxConnection()
-	with open(local_file, "rb") as f:
-		dbcon.put_file(remote_path + '/' + remote_filename, f, overwrite=True)
-
-def UploadDropBoxBinary(bin, remote_path, remote_filename):
-	tempfile = WriteTempFile(bin)
-	UploadDropBoxFile(tempfile, remote_path, remote_filename)
-	DeleteFile(tempfile)
-
-def DownloadDropBoxFile(remote_path, remote_filename, local_file):
-	dbcon = GetDropBoxConnection()
-	f, metadata = client.get_file_and_metadata(remote_path + '/' + remote_filename)
-	with open(local_file, "wb") as out:
-		out.write(f.read())
-
-def DownloadDropBoxTempFile(remote_path, remote_filename):
-	tmpfile = GetTempFile()
-	DownloadDropBoxFile(remote_path, remote_filename, tmpfile)
-	return tmpfile
-
-def GetDropBoxList(remote_path):
-	dbcon = GetDropBoxConnection()
-	metadata_json = dbcon.metadata(remote_path)
-	result = {}
-	if ("contents" in metadata_json):
-		contents = metadata_json["contents"]
-		for c in contents:
-			f = 0
-			if (len(remote_path) > 1):
-				f = 1
-			childname = c["path"][len(remote_path) + f:]
-			result[childname] = c
-	return result
-
-def GetLastModifiedFromDropBox(remote_path):
-	dir_list = GetDropBoxList(remote_path)
-	for k,v in dir_list.iteritems():
-		if (k == "modified"):
-			tmpfile = DownloadDropBoxTempFile(remote_path, "modified")
-			modtime = GetDateTimeFromPosix(ReadFile(tmpfile))
-			DeleteFile(tmpfile)
-			return modtime
-	return None
-
-def SetLastModifiedToDropBox(remote_path):
-	tmpfile = GetTempFile()
-	date_str = str(GetPosixDateTime(datetime.now()))
-	WriteFile(date_str, tmpfile)
-	UploadDropBoxFile(tmpfile, remote_path, "modified")
-	DeleteFile(tmpfile)
 
 def GetLastModifiedLocal(local_path):
 	localfile = os.path.join(local_path, "modified")
@@ -263,9 +210,9 @@ def ShowNotification(msg, duration, title=__DefaultTitle__, addon=None, sound=Fa
 	dlg = xbmcgui.Dialog()
 	dlg.notification(title, msg, icon, duration, sound)
 
-def YesNoDialog(line1, line2 = None, line3 = None, title=__DefaultTitle__, nolabel=None, yeslabel=None):
+def YesNoDialog(heading, message, nolabel, yeslabel):
 	dlg = xbmcgui.Dialog()
-	response = dlg.yesno(title, line1, line2, line3, nolabel, yeslabel)
+	response = dlg.yesno(heading, message, nolabel, yeslabel)
 	return response
 
 def OpenSettings():

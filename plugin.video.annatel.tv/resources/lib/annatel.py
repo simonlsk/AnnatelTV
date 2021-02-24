@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- 
 
-import xbmc, xbmcaddon, xbmcgui, xbmcplugin
+import xbmc, xbmcaddon, xbmcgui, xbmcplugin,xbmcvfs
 import sys, os, urllib
 import common
 from xml.dom.minidom import parseString
@@ -8,10 +8,10 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 URL_XML_FEED = 'http://www.annatel.tv/api/getchannels?login=%s&password=%s'
-URL_EPG_FEED = 'http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/arielus.zip'
+URL_EPG_FEED = 'http://xmltv.bigsb.fr/xmltv.zip'
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(__AddonID__)
-__AddonDataPath__ = os.path.join(xbmc.translatePath( "special://userdata/addon_data").decode("utf-8"), __AddonID__)
+__AddonDataPath__ = os.path.join(xbmcvfs.translatePath( "special://userdata/addon_data").encode().decode("utf-8"), __AddonID__)
 __XML__ = os.path.join(__AddonDataPath__, "Annatel", "XML")
 __EPG__ = os.path.join(__AddonDataPath__, "Annatel", "EPG")
 
@@ -26,8 +26,7 @@ def IsLoggedIn():
 		
 def LoadLogin():
 	resp = common.YesNoDialog("Authentification!",
-							  "Il faut configurer votre login et mot de passe Annatel TV!",
-							  "Cliquez sur Yes pour configurer votre login et mot de passe",
+							  "Il faut configurer votre login et mot de passe Annatel TV!\nCliquez sur Yes pour configurer votre login et mot de passe",
 							  nolabel="Non",
 							  yeslabel="Oui")
 	if (resp):
@@ -73,7 +72,7 @@ def IsOldEPG():
 		return True
 		
 def GetEPG():
-	epg_xml = common.ReadZipUrl(URL_EPG_FEED, "arielus.xml", onDownloadFailed=EPGFailed, onDownloadSuccess=EPGSuccess)
+	epg_xml = common.ReadZipUrl(URL_EPG_FEED, "xmltv.xml")
 	local_epg = os.path.join(__EPG__, "tvguide.xml")
 	if (epg_xml is not None):
 		common.WriteFile(epg_xml, local_epg)
@@ -88,17 +87,6 @@ def GetEPG():
 	else:
 		return None
 
-def EPGFailed():
-	db_mod_time = common.GetLastModifiedFromDropBox("/EPG")
-	local_mod_time = common.GetLastModifiedLocal(__EPG__)
-	if ((db_mod_time is not None) and ((local_mod_time is None) or (db_mod_time > local_mod_time))):
-		return common.DownloadDropBoxTempFile("/EPG", "tvguide.zip")
-	else:
-		return None
-
-def EPGSuccess(zip_file):
-	common.UploadDropBoxFile(zip_file, "/EPG", "tvguide.zip")
-	common.SetLastModifiedToDropBox("/EPG")
 
 def ParseEPG(epg_xml):
 	epg = None
