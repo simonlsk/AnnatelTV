@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*- 
 
-import xbmc, xbmcaddon, xbmcgui, os, sys, time, threading
+import xbmc, xbmcaddon,xbmcvfs, xbmcgui, os, sys, time, threading
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(__AddonID__)
-__AddonPath__ = xbmc.translatePath(__Addon__.getAddonInfo('path'))
+__AddonPath__ = xbmcvfs.translatePath(__Addon__.getAddonInfo('path'))
 __ResourcesPath__ = os.path.join(__AddonPath__, "resources", "lib")
 
 __UpdateInterval__	= 4 * 3600	# 4 hours

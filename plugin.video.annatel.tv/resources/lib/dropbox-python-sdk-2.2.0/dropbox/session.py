@@ -92,7 +92,7 @@ class BaseSession(object):
         if sys.version_info < (3,) and type(target) == unicode:
             target = target.encode("utf8")
 
-        target_path = urllib.quote(target)
+        target_path = urllib.parse.quote(target)
 
         params = params or {}
         params = params.copy()

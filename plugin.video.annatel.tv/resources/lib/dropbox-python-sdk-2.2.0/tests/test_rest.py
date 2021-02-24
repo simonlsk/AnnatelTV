@@ -113,7 +113,7 @@ class TestHTTPSConnection(unittest.TestCase):
         finally:
             a and a.close()
             try:
-                urllib.urlopen("https://localhost:%d/die" % PORT).close()
+                urllib.request.urlopen("https://localhost:%d/die" % PORT).close()
             except Exception:
                 traceback.print_exc()
             t.join()
@@ -130,7 +130,7 @@ class TestHTTPSConnection(unittest.TestCase):
         result = b("sup")
         with self.listen_server({path : result}) as a:
             # URLs can't have unicode in them,
-            # they have to be quoted by urllib.quote
+            # they have to be quoted by urllib.parse.quote
             self.assertRaises(Exception, a.request, "GET", path)
 
 def setup_response_mock(json_data):

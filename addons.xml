@@ -2,9 +2,9 @@
 <addons>
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.annatel.tv" name="Annatel TV" version="2.04" provider-name="Eyal Rahmani, Ariel Lasry">
+<addon id="plugin.video.annatel.tv" name="Annatel TV" version="2.04" provider-name="Eyal Rahmani, Ariel Lasry, Reouven Mimoun">
   <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="3.0.0"/>
   </requires>
   <extension point="xbmc.service" library="service.py" start="[login|startup]"/>
   <extension point="xbmc.addon.metadata">
@@ -19,7 +19,7 @@
        version="0.1"
        provider-name="Annatel">
   <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="3.0.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource"
              library="default.py">

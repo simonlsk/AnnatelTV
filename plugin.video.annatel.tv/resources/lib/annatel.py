@@ -38,7 +38,7 @@ def LoadLogin():
 def GetTVChannels():
 	if (IsLoggedIn()):
 		username, password = GetCredentials()
-		xml_link = URL_XML_FEED % (urllib.quote(username), urllib.quote(password))
+		xml_link = URL_XML_FEED % (urllib.parse.quote(username), urllib.parse.quote(password))
 		local_xml = os.path.join(__XML__, "annatel.xml")
 		doc = common.DownloadBinary(xml_link)
 		if (doc is None):

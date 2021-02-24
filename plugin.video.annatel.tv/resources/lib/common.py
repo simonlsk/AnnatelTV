@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import sys, urllib, urllib2, os, xbmc, xbmcaddon, xbmcgui, json, codecs, zipfile, random, contextlib, threading, re
+import sys, urllib, os, xbmc, xbmcaddon, xbmcgui, json, codecs, zipfile, random, contextlib, threading, re, urllib.request
 from datetime import datetime, timedelta
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(id=__AddonID__)
 __AddonPath__ = xbmc.translatePath(__Addon__.getAddonInfo('path'))
-__AddonDataPath__ = os.path.join(xbmc.translatePath( "special://userdata/addon_data").decode("utf-8"), __AddonID__)
+__AddonDataPath__ = os.path.join(xbmc.translatePath( "special://userdata/addon_data").encode().decode("utf-8"), __AddonID__)
 __DefaultTitle__ = __Addon__.getAddonInfo('name')
 __TempPath__ = os.path.join(__AddonDataPath__, "temp")
 
@@ -162,7 +162,7 @@ def DownloadBinary(url):
 	response = None
 	urlResponse = None
 	try:
-		urlResponse = urllib2.urlopen(url)
+		urlResponse = urllib.request.urlopen(url)
 		if (urlResponse.code == 200): # 200 = OK
 			response = urlResponse.read()
 	except:
@@ -277,8 +277,8 @@ class TV(object):
 	def __init__(self, url, channel_name, tvg_id, tvg_logo=None, tvg_shift=0, group_title=None, radio=False):
 		self.url = url
 		#self.tvg_id = tvg_id
-		self.tvg_id = tvg_id.replace('é'.decode("utf8"), 'e').replace(' ','_')
-		self.tvg_name = self.tvg_id #tvg_id.replace('é'.decode("utf8"), 'e').replace(' ','_')
+		self.tvg_id = tvg_id.replace('é'.encode().decode("utf8"), 'e').replace(' ','_')
+		self.tvg_name = self.tvg_id #tvg_id.replace('é'.encode().decode("utf8"), 'e').replace(' ','_')
 		self.tvg_logo = tvg_logo
 		self.tvg_shift = tvg_shift
 		self.group_title = group_title
