@@ -165,7 +165,10 @@ def DownloadBinary(url):
 		urlResponse = urllib.request.urlopen(url)
 		if (urlResponse.code == 200): # 200 = OK
 			response = urlResponse.read()
+		else:
+			print("ERROR")
 	except:
+		print("ERROR")
 		pass
 	finally:
 		if (urlResponse is not None):
