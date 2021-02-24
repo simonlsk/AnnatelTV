@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addons>
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.annatel.tv" name="Annatel TV" version="2.04" provider-name="Eyal Rahmani, Ariel Lasry, Reouven Mimoun">
+<addon id="plugin.video.annatel.tv" name="Annatel TV" version="2.05" provider-name="Eyal Rahmani, Ariel Lasry, Reouven Mimoun">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
@@ -16,7 +13,7 @@
 </addon>
 <addon id="plugin.video.annateltvvod"
        name="Annatel TV VOD"
-       version="0.1"
+       version="0.2"
        provider-name="Annatel">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
