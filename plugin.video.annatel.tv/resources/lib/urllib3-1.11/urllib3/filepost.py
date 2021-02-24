@@ -26,7 +26,7 @@ def iter_field_objects(fields):
 
     """
     if isinstance(fields, dict):
-        i = six.iteritems(fields)
+        i = six.items(fields)
     else:
         i = iter(fields)
 
@@ -50,7 +50,7 @@ def iter_fields(fields):
     Supports list of (k, v) tuples and dicts.
     """
     if isinstance(fields, dict):
-        return ((k, v) for k, v in six.iteritems(fields))
+        return ((k, v) for k, v in six.items(fields))
 
     return ((k, v) for k, v in fields)
 

@@ -67,5 +67,5 @@ class MockResponse(object):
         self.content_was_truncated = content_was_truncated
         self.final_url = final_url
         self.header_msg = httplib.HTTPMessage(StringIO(''.join(
-            ["%s: %s\n" % (k, v) for k, v in headers.iteritems()] + ["\n"])))
+            ["%s: %s\n" % (k, v) for k, v in headers.items()] + ["\n"])))
         self.headers = self.header_msg.items()

@@ -39,7 +39,7 @@ def urllib_get(url_list):
     assert url_list
     for url in url_list:
         now = time.time()
-        r = urllib.urlopen(url)
+        r = urllib.request.urlopen(url)
         elapsed = time.time() - now
         print("Got in %0.3f: %s" % (elapsed, url))
 
