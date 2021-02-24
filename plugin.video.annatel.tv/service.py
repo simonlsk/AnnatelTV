@@ -15,7 +15,7 @@ __WaitInterval__	= 5			# 5 seconds
 sys.path.insert(0, __ResourcesPath__)
 import common, annatel, myIPTVSimple
 
-monit = xbmc.Monitor()
+monit = xbmc.Monitor
 tvThread  = None
 epgThread = None
 tvCounter  = 0
@@ -36,6 +36,7 @@ def OnLoad():
 		tvCounter = 0
 		epgCounter = 0
 		myIPTVSimple.GetIptvAddon(show_message=True)
+		UpdateTVChannels()
 		CheckUpdates()
 
 def OnExit():
@@ -59,6 +60,7 @@ def CheckUpdates():
 	global epgCounter
 	global epgThread
 	while ((not monit.abortRequested) and (annatel.IsLoggedIn()) and (myIPTVSimple.GetIptvAddon() is not None)):
+
 		tvCounter  -= __WaitInterval__
 		epgCounter -= __WaitInterval__
 		
@@ -69,6 +71,7 @@ def CheckUpdates():
 		if ((epgCounter <= 0) and (epgThread is None)):
 			epgCounter = __UpdateInterval__
 			epgThread = threading.Thread(target=UpdateEPG).start()
+			
 		
 		xbmc.sleep(__WaitInterval__ * 1000)
 
@@ -77,7 +80,7 @@ def UpdateTVChannels():
 	global tvThread
 	result = False
 	try:
-		channels_list = annatel.GetTVChannels()
+		channels_list = annatel.GetTVChannels()		
 		if (channels_list is not None):
 			myIPTVSimple.RefreshIPTVlinks(channels_list)
 		result = (channels_list is not None)

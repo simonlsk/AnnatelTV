@@ -7,7 +7,7 @@ from xml.dom.minidom import parseString
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
-URL_XML_FEED = 'http://www.annatel.tv/api/getchannels?login=%s&password=%s'
+URL_XML_FEED = 'https://www.annatel.tv/api/getchannels?login=%s&password=%s'
 URL_EPG_FEED = 'http://xmltv.bigsb.fr/xmltv.zip'
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(__AddonID__)
@@ -35,16 +35,20 @@ def LoadLogin():
 		common.ShowNotification("Authentification!\nMerci d\'entrer votre login et mot de passe Annatel TV", 10, addon=__Addon__)
 
 def GetTVChannels():
+	
 	if (IsLoggedIn()):
 		username, password = GetCredentials()
 		xml_link = URL_XML_FEED % (urllib.parse.quote(username), urllib.parse.quote(password))
 		local_xml = os.path.join(__XML__, "annatel.xml")
+		
+
 		doc = common.DownloadBinary(xml_link)
 		if (doc is None):
 			doc = common.ReadFile(local_xml)
 		else:
-			common.WriteFile(doc, local_xml)
+			common.WriteFile(doc, local_xml,False,True)
 			common.SetLastModifiedLocal(__XML__)
+			
 		
 		if (doc is not None):
 			response = []

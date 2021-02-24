@@ -238,7 +238,7 @@ class HTTPHeaderDict(MutableMapping):
         other = args[0] if len(args) >= 1 else ()
 
         if isinstance(other, HTTPHeaderDict):
-            for key, val in other.iteritems():
+            for key, val in other.items():
                 self.add(key, val)
         elif isinstance(other, Mapping):
             for key in other:
@@ -287,7 +287,7 @@ class HTTPHeaderDict(MutableMapping):
         clone._copy_from(self)
         return clone
 
-    def iteritems(self):
+    def items(self):
         """Iterate over all header lines, including duplicate ones."""
         for key in self:
             vals = self._container[key.lower()]
@@ -301,7 +301,7 @@ class HTTPHeaderDict(MutableMapping):
             yield val[0], ', '.join(val[1:])
 
     def items(self):
-        return list(self.iteritems())
+        return list(self.items())
 
     @classmethod
     def from_httplib(cls, message): # Python 2

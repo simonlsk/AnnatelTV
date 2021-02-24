@@ -36,12 +36,13 @@ def RefreshIPTVlinks(channel_list):
 	if (iptvAddon is None):
 		return False
 	
-	common.ShowNotification("Updating links...", 300000, addon=__Addon__)
-	
-	is_logo_extension = common.IsNewVersion(iptvAddon.getAddonInfo('version'), "1.9.3")
+	common.ShowNotification("Updating links...", 3000, addon=__Addon__)
+	is_logo_extension = True
 	finalM3Ulist = MakeM3U(channel_list, is_logo_extension)
 	finalM3Ufilename = os.path.join(__AddonDataPath__, 'iptv.m3u') # The final m3u file location.
 	current_file = common.ReadFile(finalM3Ufilename)
+	print('update chanel',finalM3Ulist)
+
 	if ((current_file is None) or (finalM3Ulist != current_file)):
 		common.WriteFile(finalM3Ulist, finalM3Ufilename)
 		UpdateIPTVSimpleSettings(iptvAddon, restart_pvr=True)
@@ -51,12 +52,12 @@ def RefreshIPTVlinks(channel_list):
 	common.ShowNotification("Updating is done.", 2000, addon=__Addon__)
 	return True
 
-def MakeM3U(list, is_logo_extension):
+def MakeM3U(channel, is_logo_extension):
 	M3Ulist = []
 	M3Ulist.append("#EXTM3U\n")
-	for item in list:
+	for item in channel:
 		tvg_logo = GetLogo(item.tvg_logo, is_logo_extension)
-		M3Ulist.append('#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" group-title="{2}" tvg-logo="{3}",{4}\n{5}\n'.format(item.tvg_id.encode("utf-8"), item.tvg_name.encode("utf-8"), (item.group_title or "").encode("utf-8"), tvg_logo, item.channel_name.encode("utf-8"), item.url))
+		M3Ulist.append('#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" group-title="{2}" tvg-logo="{3}",{4}\n{5}\n'.format(item.tvg_id, item.tvg_name, (item.group_title or ""), tvg_logo, item.channel_name, item.url))
 	return "\n".join(M3Ulist)
 
 def DeleteCache():
@@ -72,6 +73,7 @@ def UpdateIPTVSimpleSettings(iptvAddon = None, restart_pvr = False):
 		iptvAddon = GetIptvAddon()
 		if (iptvAddon is None):
 			return
+	
 	
 	iptvSettingsFile = os.path.join(__IPTVSimple__AddonDataPath____, "settings.xml")
 	if (not os.path.isfile(iptvSettingsFile)):
@@ -90,11 +92,11 @@ def UpdateIPTVSimpleSettings(iptvAddon = None, restart_pvr = False):
 	}
 	
 	isSettingsChanged = False
-	for k, v in tempDictionary.iteritems():
-		if ((settingsDictionary.has_key(k)) and (settingsDictionary[k] != v)):
+
+	for k, v in tempDictionary.items():
+		if (k in settingsDictionary and (settingsDictionary[k] != v)):
 			settingsDictionary[k] = v
 			isSettingsChanged = True
-		
 	if (isSettingsChanged):
 		WriteSettings(settingsDictionary, iptvSettingsFile)
 	if (restart_pvr == True):
@@ -102,6 +104,9 @@ def UpdateIPTVSimpleSettings(iptvAddon = None, restart_pvr = False):
 
 def RefreshIPTVSimple():
 	xbmc.executebuiltin('StartPVRManager')
+	
+
+
 
 def ReadSettings(source, fromFile=False):
 	tree = ET.parse(source) if fromFile else ET.fromstring(source)
@@ -116,7 +121,7 @@ def ReadSettings(source, fromFile=False):
 def WriteSettings(settingsDictionary, iptvSettingsFile):
 	xml = []
 	xml.append("<settings>\n")
-	for k, v in settingsDictionary.iteritems():
+	for k, v in settingsDictionary.items():
 		xml.append('\t<setting id="{0}" value="{1}" />\n'.format(k, v))
 	xml.append("</settings>\n")
 	common.WriteFile("".join(xml), iptvSettingsFile)
@@ -179,10 +184,12 @@ def RefreshEPG(epg_list, is_very_new=False):
 			RefreshIPTVSimple()
 
 def GetLogo(link, is_logo_extension):
+
 	if ((link is not None) and (len(link) > 4)):
 		filename = link.split("/")[-1]
+
 		ext = None
-		if (filename > 4):
+		if (len(filename) > 4):
 			ext =  filename[-4:].lower()
 		if ((ext is None) or (ext != ".png")):
 			filename = filename + ".png"
