@@ -45,7 +45,7 @@ def ParseEPGTimeUTC(epg_time):
         return (dt - timedelta(minutes=tz))
     else: #(split_epg[1][0] == "-"):
         return (dt + timedelta(minutes=tz))
-    
+
 def FormatEPGTime(time_utc, timezone):
     time_by_tz = time_utc + timedelta(minutes=timezone)
     time_formatted = time_by_tz.strftime("%Y%m%d%H%M%S")
@@ -56,14 +56,14 @@ def FormatEPGTime(time_utc, timezone):
         return "%s +%s" % (time_formatted, tz_formatted)
     else:
         return "%s -%s" % (time_formatted, tz_formatted)
-    
+
 def StartThread(func, args=None):
     thread = threading.Thread(target=func, args=args)
     thread.daemon = False
     thread.start()
     return thread
 
-def Cmp(a, b): 
+def Cmp(a, b):
     return (int(a) > int(b)) - (int(a) < int(b))
 
 def IsNewVersion(new_version, old_version):
@@ -81,40 +81,52 @@ def CleanTempFolder():
 def GetTempFile(suffix=""):
     if (not os.path.exists(__TempPath__)):
         os.makedirs(__TempPath__)
-    
+
     rnd = random.randint(1,100)
     filename = "tmp%i%i%s" % (int(GetPosixDateTime()), rnd, suffix)
     tmpfile = os.path.join(__TempPath__, filename)
     return tmpfile
-    
-def WriteFile(text, file_path, utf8=False,xlm=False):
-    
-    if (text is not None):
+
+
+def WriteFile(text, file_path, utf8=True, xlm=False):
+    xbmc.log("Writing file {}".format(file_path))
+    if text is not None:
         local_dir = os.path.dirname(file_path)
-        if (not os.path.exists(local_dir)):
-            os.makedirs(local_dir)
-        
-        if (not utf8):
+        os.makedirs(local_dir, exist_ok=True)
+
+        if not utf8:
+            xbmc.log("not utf8")
             if xlm:
                 import xml.etree.ElementTree as ET
                 tree = ET.ElementTree(ET.fromstring(text))
                 tree.write(file_path)
-            else: 
-                with codecs.open(file_path, "w+") as openFile:
-                    openFile.write(text)
+            else:
+                try:
+                    with codecs.open(file_path, "w+") as openFile:
+                        xbmc.log("file is open in w")
+                        openFile.write(text)
+                        xbmc.log("file write finished")
+                except Exception as e:
+                    print(e)
 
         else:
-            with codecs.open(file_path, "w+", "utf-8") as openFile:
-                openFile.write(text)
+            xbmc.log("is utf8")
+            try:
+                with codecs.open(file_path, "w+", "utf-8") as openFile:
+                    openFile.write(text)
+            except Exception as e:
+                print(e)
     else:
         DeleteFile(file_path)
+    xbmc.log("Finished writing file")
+
 
 def WriteBinaryFile(bin, file_path):
     if (bin is not None):
         local_dir = os.path.dirname(file_path)
         if (not os.path.exists(local_dir)):
             os.makedirs(local_dir)
-        
+
         with open(file_path, "wb") as openFile:
             openFile.write(bin)
     else:
@@ -127,20 +139,20 @@ def WriteTempFile(bin, suffix=""):
 
 def ReadFile(file_path):
     text = None
-    if (os.path.exists(file_path)):
-        with codecs.open(file_path, "r") as openFile:
+    if os.path.exists(file_path):
+        with codecs.open(file_path, "r", "utf-8") as openFile:
             text = openFile.read()
     return text
 
 def DeleteFile(file_path):
     if (os.path.exists(file_path)):
         os.remove(file_path)
-    
+
 def ReadZipUrl(url, filename, onDownloadSuccess=None, onDownloadFailed=None):
     response = None
     download_success_thread = None
-    
-    zipData = DownloadBinary(url)	
+
+    zipData = DownloadBinary(url)
     tmpfile = None
     if (zipData is None):
         if (onDownloadFailed is not None):
@@ -160,10 +172,10 @@ def ReadZipUrl(url, filename, onDownloadSuccess=None, onDownloadFailed=None):
         if (zipfile.is_zipfile(tmpfile)):
             with contextlib.closing(zipfile.ZipFile(tmpfile, 'r')) as myZip:
                 binFile = myZip.read(filename)
-        
+
         if (binFile is not None):
             response = binFile
-        
+
         if (download_success_thread is None):
             DeleteFile(tmpfile)
     return response
@@ -212,9 +224,9 @@ def SetLastModifiedLocal(local_path):
     WriteFile(date_str, localfile)
 
 
-def OKmsg(line1, line2 = None, line3 = None, title=__DefaultTitle__):
+def OKmsg(line1, title=__DefaultTitle__):
     dlg = xbmcgui.Dialog()
-    dlg.ok(title, line1, line2, line3)
+    dlg.ok(title, line1)
 
 def ShowNotification(msg, duration, title=__DefaultTitle__, addon=None, sound=False):
     icon = None
@@ -248,7 +260,7 @@ class TV(object):
 class EPG(object):
     def __init__(self):
         self.channels = []
-    
+
     def GetChannelByID(self, channel_id):
         for channel in self.channels:
             if (channel.id == channel_id):
