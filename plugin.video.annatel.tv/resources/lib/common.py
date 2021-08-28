@@ -3,6 +3,8 @@
 import sys, urllib, os, xbmc, xbmcaddon, xbmcgui, json, codecs, zipfile, random, contextlib, threading, re, \
     urllib.request, xbmcvfs
 from datetime import datetime, timedelta
+import dateutil
+import time
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(id=__AddonID__)
@@ -44,12 +46,21 @@ def GetTimezoneDifferenceMinutes():
 
 def ParseEPGTimeUTC(epg_time):
     split_epg = epg_time.split(" ")
-    dt = datetime.strptime(split_epg[0], "%Y%m%d%H%M%S")
-    tz = int(split_epg[1][1:3]) * 60 + int(split_epg[1][3:5])
-    if split_epg[1][0] == "+":
-        return dt - timedelta(minutes=tz)
-    else:  # (split_epg[1][0] == "-"):
-        return dt + timedelta(minutes=tz)
+    if len(split_epg) > 1:
+        date_and_time, timezone = split_epg[0], split_epg[1]
+    else:
+        date_and_time = epg_time
+
+    date_format = "%Y%m%d%H%M%S"
+    # bug in datetime.strptime - see https://stackoverflow.com/a/40412329
+    dt = datetime(*(time.strptime(date_and_time, date_format)[0:6]))
+    minutes_shift = int(timezone[1:3]) * 60 + int(timezone[3:5])
+
+    if timezone is not None:
+        if timezone[0] == "+":
+            return dt - timedelta(minutes=minutes_shift)
+        elif timezone[0] == "-":
+            return dt + timedelta(minutes=minutes_shift)
 
 
 def FormatEPGTime(time_utc, timezone):
@@ -58,7 +69,7 @@ def FormatEPGTime(time_utc, timezone):
     tz_h = abs(timezone / 60)
     tz_m = abs(timezone) - tz_h * 60
     tz_formatted = str(tz_h).zfill(2) + str(tz_m).zfill(2)
-    if (timezone >= 0):
+    if timezone >= 0:
         return "%s +%s" % (time_formatted, tz_formatted)
     else:
         return "%s -%s" % (time_formatted, tz_formatted)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import xbmc, xbmcaddon, xbmcvfs, xbmcgui, os, sys, time, threading
+import traceback
 
 __AddonID__ = 'plugin.video.annatel.tv'
 __Addon__ = xbmcaddon.Addon(__AddonID__)
@@ -108,7 +109,8 @@ def UpdateEPG():
             myIPTVSimple.RefreshEPG([epg])
         result = epg is not None
     except Exception as e:
-        xbmc.log("couldn't get EPG:\n{}".format(e), xbmc.LOGERROR)
+        traceback.print_exception(e)
+        # xbmc.log("couldn't get EPG:\n{}\n{}\n{}".format(exc_type, fname, exc_tb.tb_lineno), xbmc.LOGERROR)
         result = False
     if result:
         epgCounter = __UpdateInterval__

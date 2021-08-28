@@ -157,7 +157,6 @@ def MakeEPG(epg_list):
             xml_list.append('<channel id="%s">%s</channel>' % (channel.id, channel.display_name))
 
             for program in channel.programs:
-                xbmc.log("adding program")
                 xml_list.append('<programme start="%s" stop="%s" channel="%s">' % (
                 common.FormatEPGTime(program.start, current_tz_diff),
                 common.FormatEPGTime(program.stop, current_tz_diff), channel.id))

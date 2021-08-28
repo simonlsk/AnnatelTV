@@ -116,12 +116,12 @@ def ParseEPG(epg_xml):
 
         current_channel = None
         for program in parsed_epg.findall('programme'):
-            start = program.get("start")
-            # if start_str is not None:
-            #     start = common.ParseEPGTimeUTC(start_str)
-            stop = program.get("stop")
-            # if stop_str is not None :
-            #     stop = common.ParseEPGTimeUTC(stop_str)
+            start_str = program.get("start")
+            if start_str:
+                start = common.ParseEPGTimeUTC(start_str)
+            stop_str = program.get("stop")
+            if stop_str:
+                stop = common.ParseEPGTimeUTC(stop_str)
             # xbmc.log("fetched start {} stop {}".format(start_str, stop_str))
             # start = common.ParseEPGTimeUTC(program.get("start").encode("utf-8"))
             # stop = common.ParseEPGTimeUTC(program.get("stop").encode("utf-8"))
@@ -183,7 +183,6 @@ def ParseEPG(epg_xml):
             # program_epg.aspect_ratio = aspect_ratio
             # program_epg.star_rating = star_rating
             program_epg.icon = program_icon
-            # xbmc.log("found program {}".format(program_epg.__dict__))
 
             channel_id = program.get("channel")
             # xbmc.log("found program {}, channel {}".format(title, channel_id))
@@ -198,68 +197,51 @@ def ParseEPG(epg_xml):
 def FixEPGChannelsIDs(epg):
     xbmc.log("fixing EPG channel ids")
     if epg is not None:
-        # ids = {
-        #     "1": "TF1",
-        #     "2": "France_2",
-        #     "3": "France_3",
-        #     "4": "Canal_+",
-        #     "5": "France_5",
-        #     "6": "M6",
-        #     "7": "Arte",
-        #     "8": "D8",
-        #     "9": "W9",
-        #     "10": "TMC",
-        #     "11": "NT1",
-        #     "12": "NRJ_12",
-        #     "13": "France_4",
-        #     "15": "BFM_TV",
-        #     # "16"	:	"i-télé",
-        #     "16": "i-tele",
-        #     "17": "D17",
-        #     "18": "Gulli",
-        #     # "43"	:	"Canal+_Cinéma",
-        #     "43": "Canal+_Cinema",
-        #     "45": "Canal+_Family",
-        #     "47": "Canal+_Sport",
-        #     "62": "Cine+_Premier",
-        #     "68": "Comedie+",
-        #     "74": "Disney_Channel",
-        #     "75": "Disney_Cinema",
-        #     "83": "Equidia",
-        #     "87": "EuroNews",
-        #     "89": "EuroSport",
-        #     "90": "EuroSport2",
-        #     "119": "France_O",
-        #     "168": "National_Geo",
-        #     "171": "NickJr_France",
-        #     "186": "Paris_Première",
-        #     "194": "Disney_Junior",
-        #     "199": "RTL9",
-        #     # "227"	:	"Téva",
-        #     "227": "Teva",
-        #     "288": "France_24",
-        #     # "4138"	:	"Canal+_Séries",
-        #     "4138": "Canal+_Series",
-        #     "4139": "BeIN_Sport_1_HD",
-        #     "4140": "BeIN_Sport_2_HD"
-        # }
+        epg_to_iptv_channel_id_lut = {
+            "TF1.fr": ["TF1"],
+            "France2.fr": ["France_2"],
+            "France3.fr": ["France_3"],
+            "CanalPlus.fr": ["Canal_+"],
+            "France5.fr": ["France_5"],
+            "M6.fr": ["M6"],
+            "Arte.fr": ["Arte"],
+            "C8.fr": ["C8"],
+            "W9.fr": ["W9"],
+            "TMC.fr": ["TMC"],
+            "NT1.fr": ["NT1"],
+            "NRJ12.fr": ["NRJ_12"],
+            "France4.fr": ["France_4"],
+            "BFMTV.fr": ["BFM_TV"],
+            "CanalPlusCinema.fr": ["Canal+_Cinema"],
+            "CanalPlusFamily.fr": ["Canal+_Family"],
+            "CanalPlusSport.fr": ["Canal+_Sport"],
+            "CinePlusPremier.fr": ["Cine+_Premier"],
+            "ComediePlus.fr": ["Comedie+"],
+            "DisneyChannel.fr": ["Disney_Channel"],
+            "DisneyCinema.fr": ["Disney_Cinema"],
+            "Equidia.fr": ["Equidia"],
+            "EuroNews.fr": ["EuroNews"],
+            "Eurosport1.fr": ["EuroSport"],
+            "Eurosport2.fr": ["EuroSport2"],
+            "NationalGeographic.fr": ["National_Geo"],
+            "RMCSport1.fr": ["RMC_Sport_1"],
+            "RMCSport2.fr": ["RMC_Sport_2"],
+            "NickelodeonJunior.fr": ["NickJr_France"],
+            "ParisPremiere.fr": ["Paris_Première"],
+            "DisneyJunior.fr": ["Disney_Junior"],
+            "RTL9.fr": ["RTL9"],
+            "Teva.fr": ["Teva"],
+            "France24.fr": ["France_24"],
+            "CanalPlusSeries.fr": ["Canal+_Series"],
+            "beINSPORTS1.fr": ["BeIN_Sport_1_HD"],
+            "beINSPORTS2.fr": ["BeIN_Sport_2_HD"]
+            # Here add other channels
+        }
 
-        # for channel in epg.channels:
-        #     if channel.id in ids:
-        #         channel.id = ids[channel.id]
+        new_channels = {}
+        for channel_id, channel_epg_data in epg.channels.items():
+            iptv_channel_ids = epg_to_iptv_channel_id_lut.get(channel_id)
+            for iptv_channel_id in iptv_channel_ids:
+                new_channels[iptv_channel_id] = channel_epg_data
 
-        duplicates = [
-            ("BeIN_Sport_1", "BeIN Sport 1", "beINSPORTS1.fr"),
-            ("BeIN_Sport_2", "BeIN Sport 2", "beINSPORTS2.fr"),
-            ("TF1_HD", "TF1 HD", "TF1.fr"),
-            ("France_2_HD", "France 2 HD", "France2.fr"),
-            ("Canal+_HD", "Canal+ HD", "CanalPlus.fr"),
-            ("M6_HD", "M6 HD", "M6.fr"),
-        ]
-
-        for channel_id, channel_name, clone_id in duplicates:
-            new_channel = common.Channel(channel_id, channel_name)
-            original_channel = epg.channels.get(clone_id)
-            if original_channel is not None:
-                new_channel.programs = original_channel.programs
-                epg.channels[new_channel.id] = new_channel
+        epg.channels = new_channels
