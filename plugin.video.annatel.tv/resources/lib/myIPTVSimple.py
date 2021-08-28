@@ -111,7 +111,7 @@ def UpdateIPTVSimpleSettings(settings, iptv_addon=None, restart_pvr=False):
 
     is_settings_changed = False
 
-    for k, v in temp_dictionary.items():
+    for k, v in settings.items():
         if k in settings_dictionary and settings_dictionary[k] != v:
             settings_dictionary[k] = v
             is_settings_changed = True
