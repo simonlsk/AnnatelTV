@@ -87,7 +87,7 @@ def UpdateTVChannels():
             channels_found = True
             myIPTVSimple.RefreshIPTVlinks(channels_list)
     except Exception as e:
-        xbmc.log("Could not update tv channels: " + e)
+        xbmc.log("Could not update tv channels: {}".format(e))
 
     if channels_found:
         tvCounter = __UpdateInterval__
@@ -103,10 +103,12 @@ def UpdateEPG():
     try:
         old_epg = annatel.IsOldEPG()
         epg = annatel.GetEPG()
+        xbmc.log("got EPG")
         if epg is not None:
-            myIPTVSimple.RefreshEPG([epg], is_very_new=old_epg)
+            myIPTVSimple.RefreshEPG([epg])
         result = epg is not None
-    except:
+    except Exception as e:
+        xbmc.log("couldn't get EPG:\n{}".format(e), xbmc.LOGERROR)
         result = False
     if result:
         epgCounter = __UpdateInterval__

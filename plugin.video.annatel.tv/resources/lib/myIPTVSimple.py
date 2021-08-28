@@ -60,6 +60,7 @@ def RefreshIPTVlinks(channel_list):
             "logoPath": os.path.join(__AddonDataPath__, 'logos'),
             "m3uPathType": "0",
             "m3uPath": os.path.join(__AddonDataPath__, 'iptv.m3u'),
+
         }
         UpdateIPTVSimpleSettings(settings, iptv_addon, restart_pvr=pvr_restart_required)
     except Exception as e:
@@ -69,18 +70,19 @@ def RefreshIPTVlinks(channel_list):
 
 
 def MakeM3U(channel, is_logo_extension):
-    M3Ulist = []
-    M3Ulist.append("#EXTM3U\n")
+    m3u_list = ["#EXTM3U"]
     for item in channel:
         tvg_logo = GetLogo(item.tvg_logo, is_logo_extension)
-        M3Ulist.append(
-            '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" group-title="{2}" tvg-logo="{3}",{4}\n{5}\n'.format(item.tvg_id,
-                                                                                                        item.tvg_name, (
-                                                                                                                    item.group_title or ""),
-                                                                                                        tvg_logo,
-                                                                                                        item.channel_name,
-                                                                                                        item.url))
-    return "\n".join(M3Ulist)
+        m3u_list.append(
+            '#EXTINF:0 tvg-id="{}" tvg-name="{}" tvg-logo="{}" catchup="disabled",{}'.format(
+                item.tvg_id,
+                item.tvg_name,
+                tvg_logo,
+                item.channel_name
+            )
+        )
+        m3u_list.append(item.url)
+    return "\n".join(m3u_list)
 
 
 def DeleteCache():
@@ -100,29 +102,26 @@ def UpdateIPTVSimpleSettings(settings, iptv_addon=None, restart_pvr=False):
             return
 
     iptv_settings_file = os.path.join(__IPTVSimple__AddonDataPath____, "settings.xml")
+
     if not os.path.isfile(iptv_settings_file):
         xbmc.log("Creating file {}".format(iptv_settings_file))
-        iptv_addon.setSetting("epgPathType", "0")  # make 'settings.xml' in 'userdata/addon_data/pvr.iptvsimple' folder
 
+    iptv_addon.setSetting("useInputstreamAdaptiveforHls", "true")
     # get settings.xml into dictionary
     xbmc.log("Reading file {}".format(iptv_settings_file))
-    settings_dictionary = ReadSettings(iptv_settings_file, True)
+    # settings_dictionary = ReadSettings(iptv_settings_file, True)
     xbmc.log("settings already read")
 
-    is_settings_changed = False
-
     for k, v in settings.items():
-        if k in settings_dictionary and settings_dictionary[k] != v:
-            settings_dictionary[k] = v
-            is_settings_changed = True
-    if is_settings_changed:
-        WriteSettings(settings_dictionary, iptv_settings_file)
+        xbmc.log("Setting iptv.simple setting '{}' to {}".format(k, v))
+        iptv_addon.setSetting(k, v)
     if restart_pvr:
         RefreshIPTVSimple()
 
 
 def RefreshIPTVSimple():
-    common.OKmsg("Please restart Kodi for changes to take place", title="Restart required")
+    pass
+    # common.OKmsg("Please restart Kodi for changes to take place", title="Restart required")
 
 
 def ReadSettings(source, fromFile=False):
@@ -154,10 +153,11 @@ def MakeEPG(epg_list):
     xml_list.append('<?xml version="1.0" encoding="utf-8" ?>')
     xml_list.append("<tv>")
     for epg in epg_list:
-        for channel in epg.channels:
+        for channel in epg.channels.values():
             xml_list.append('<channel id="%s">%s</channel>' % (channel.id, channel.display_name))
 
             for program in channel.programs:
+                xbmc.log("adding program")
                 xml_list.append('<programme start="%s" stop="%s" channel="%s">' % (
                 common.FormatEPGTime(program.start, current_tz_diff),
                 common.FormatEPGTime(program.stop, current_tz_diff), channel.id))
@@ -199,8 +199,9 @@ def MakeEPG(epg_list):
 
 def RefreshEPG(epg_list, is_very_new=False):
     if epg_list is not None and len(epg_list) > 0:
+        xbmc.log("Refreshing EPG")
         epg_file = os.path.join(__AddonDataPath__, 'epg.xml')
-        restart_pvr = (not os.path.exists(epg_file))
+        restart_pvr = not os.path.exists(epg_file)
         epg_xml = MakeEPG(epg_list)
         common.WriteFile(epg_xml, epg_file)
         if restart_pvr:
